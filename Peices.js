@@ -61,7 +61,29 @@ class Piece {
     }
 
     emptySpot(i, j) {
-        return board.withinBounds(i,j) && (board.grid[i][j] === null || board.grid[i][j].black !== this.black);
+        
+        if (board.withinBounds(i,j)) {
+            if (board.grid[i][j] === null) {
+                return true;
+            }
+            checkHit(i,j);
+        }
+
+        return false;
+    }
+
+    checkHit(i ,j) {
+        if (board.grid[i][j] !== null && board.grid[i][j].black !== this.black) {
+            attack(i,j);
+            return true;
+        }
+        return false;
+    }
+
+    attack(i, j) {
+        if (board.grid[i][j] !== null) {
+            
+        }
     }
 }
 
