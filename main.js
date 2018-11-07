@@ -1,19 +1,20 @@
 
 let grid;
-let spritesheet;
+let spriteSheet;
 let sprite;
 let king;
+let m = -1;
 
 let pieces = [];
 
 function preload() {
-    spritesheet = loadImage('assets/ChessPiecesSprite.png');
+    spriteSheet = loadImage('assets/ChessPiecesSprite.png');
 }
 
 function setup() {
     createCanvas(600,600);
     background(0);
-    grid = new Board();
+    board = new Board();
 
     pieces.push(new Rook(0,0, true));
     pieces.push(new Knight(1,0,true));
@@ -45,14 +46,28 @@ function setup() {
 }
 
 function draw() {
-    grid.draw();
+    board.draw();
     for (let i = 0; i<pieces.length; i++) {
-        pieces[i].draw();
+        if (!pieces[i].moving) {
+            pieces[i].draw();
+        } else {
+            m=i;
+        }
     }
+
+    if (m != -1) {
+        stroke(255);
+        strokeWeight(2);
+        fill(color(229, 225, 18, 40)); 
+        rect(pieces[m].index.i*board.rows,pieces[m].index.j*board.col,board.rows,board.col);
+        pieces[m].draw();
+        m=-1;
+    }
+    
 }
 
 function mousePressed() {
-    if (mouseX < grid.SIZE*grid.col || mouseY < grid.SIZE*grid.row) {
+    if (mouseX < board.SIZE*board.col || mouseY < board.SIZE*board.row) {
         for (let i = 0; i<pieces.length; i++) {
             pieces[i].clicked();
         }

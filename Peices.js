@@ -1,5 +1,5 @@
 
-class Peice {
+class Piece {
 
     constructor(i, j, black) {
         this.SIZE = 75;
@@ -8,14 +8,14 @@ class Peice {
         this.black = black;
         this.image = image;
         this.moving = false;
-
+        this.addToGrid(i,j);
     }
 
     getImage(x, w, h) {
         if (this.black) {
-            this.image = spritesheet.get(x,85,w,h);
+            this.image = spriteSheet.get(x,85,w,h);
         } else {
-            this.image = spritesheet.get(x,0,w,h);
+            this.image = spriteSheet.get(x,0,w,h);
         }
     }
 
@@ -31,19 +31,27 @@ class Peice {
     move() {
         this.moving = false;
         if (this.isValidMove()) { 
+            let pi = this.index.i;
+            let pj = this.index.j;
             this.index.i = Math.floor(mouseX / this.SIZE);
             this.index.j = Math.floor(mouseY / this.SIZE);
             this.pos.x = this.index.i * this.SIZE;
             this.pos.y = this.index.j * this.SIZE;
+            this.addToGrid(pi, pj);
         }
     }
 
     isValidMove() {
-        return !(mouseX > this.SIZE*grid.SIZE || mouseY > this.SIZE*grid.SIZE); 
+        return !(mouseX > this.SIZE*board.SIZE || mouseY > this.SIZE*board.SIZE); 
     }
 
     create() {
 
+    }
+
+    addToGrid(pi, pj) {
+        board.grid[pi][pj] = null;
+        board.grid[this.index.i][this.index.j] = this;
     }
 
     clicked() {
@@ -51,9 +59,13 @@ class Peice {
             this.moving = true;
         }
     }
+
+    emptySpot(i, j) {
+        return board.withinBounds(i,j) && (board.grid[i][j] === null || board.grid[i][j].black !== this.black);
+    }
 }
 
-class King extends Peice {
+class King extends Piece {
 
     constructor(x, y, black) {
         super(x,y, black);
@@ -62,7 +74,9 @@ class King extends Peice {
 
     isValidMove() {
         if (super.isValidMove()) {
-            if (Math.abs(Math.floor(mouseX / this.SIZE)-this.index.i) <= 1 && Math.abs(Math.floor(mouseY / this.SIZE)-this.index.j) <=1) {
+            let i = Math.floor(mouseX / this.SIZE);
+            let j = Math.floor(mouseY / this.SIZE);
+            if ((Math.abs(i-this.index.i) <= 1 && Math.abs(j-this.index.j) <=1) && this.emptySpot(i,j)) {
                 return true;
             }
         }
@@ -71,7 +85,7 @@ class King extends Peice {
     }
 }
 
-class Queen extends Peice {
+class Queen extends Piece {
 
     constructor(x, y, black) {
         super(x,y, black);
@@ -83,21 +97,21 @@ class Queen extends Peice {
             let i = Math.floor(mouseX / this.SIZE);
             let j = Math.floor(mouseY / this.SIZE);
 
-            if (i === this.index.i || j === this.index.j) {
+            if ((i === this.index.i || j === this.index.j) && this.emptySpot(i,j)) {
                 return true;
             }
 
-            for (let k = 0; k < grid.SIZE; k++) {
-                if (this.index.i - k === i && this.index.j - k === j) {
+            for (let k = 0; k < board.SIZE; k++) {
+                if ((this.index.i - k === i && this.index.j - k === j) && this.emptySpot(i,j)) {
                     return true;
                 }
-                if (this.index.i - k === i && this.index.j + k === j) {
+                if ((this.index.i - k === i && this.index.j + k === j) && this.emptySpot(i,j))  {
                     return true;
                 }
-                if (this.index.i + k === i && this.index.j - k === j) {
+                if ((this.index.i + k === i && this.index.j - k === j)  && this.emptySpot(i,j)) {
                     return true;
                 }
-                if (this.index.i + k === i && this.index.j + k === j) {
+                if ((this.index.i + k === i && this.index.j + k === j) && this.emptySpot(i,j)) {
                     return true;
                 }
             }
@@ -108,7 +122,7 @@ class Queen extends Peice {
     }
 }
 
-class Rook extends Peice {
+class Rook extends Piece {
 
     constructor(x, y, black) {
         super(x,y, black);
@@ -120,7 +134,7 @@ class Rook extends Peice {
             let i = Math.floor(mouseX / this.SIZE);
             let j = Math.floor(mouseY / this.SIZE);
 
-            if (i === this.index.i || j === this.index.j) {
+            if ((i === this.index.i || j === this.index.j) && this.emptySpot(i,j)) {
                 return true;
             }
         }
@@ -129,7 +143,7 @@ class Rook extends Peice {
     }
 }
 
-class Bishop extends Peice {
+class Bishop extends Piece {
 
     constructor(x, y, black) {
         super(x,y, black);
@@ -141,17 +155,17 @@ class Bishop extends Peice {
             let i = Math.floor(mouseX / this.SIZE);
             let j = Math.floor(mouseY / this.SIZE);
 
-            for (let k = 0; k < grid.SIZE; k++) {
-                if (this.index.i - k === i && this.index.j - k === j) {
+            for (let k = 0; k < board.SIZE; k++) {
+                 if ((this.index.i - k === i && this.index.j - k === j) && this.emptySpot(i,j)) {
                     return true;
                 }
-                if (this.index.i - k === i && this.index.j + k === j) {
+                if ((this.index.i - k === i && this.index.j + k === j) && this.emptySpot(i,j))  {
                     return true;
                 }
-                if (this.index.i + k === i && this.index.j - k === j) {
+                if ((this.index.i + k === i && this.index.j - k === j)  && this.emptySpot(i,j)) {
                     return true;
                 }
-                if (this.index.i + k === i && this.index.j + k === j) {
+                if ((this.index.i + k === i && this.index.j + k === j) && this.emptySpot(i,j)) {
                     return true;
                 }
             }
@@ -161,7 +175,7 @@ class Bishop extends Peice {
     }
 }
 
-class Pawn extends Peice {
+class Pawn extends Piece {
 
     constructor(x, y, black) {
         super(x,y, black);
@@ -174,7 +188,7 @@ class Pawn extends Peice {
             let i = Math.floor(mouseX / this.SIZE);
             let j = Math.floor(mouseY / this.SIZE);
             let val = this.black ? 1 : -1;
-            if ((j-this.index.j === val || (j-this.index.j === 2*val)) && i===this.index.i) {
+            if (((j-this.index.j === val || (j-this.index.j === 2*val)) && i===this.index.i) && this.emptySpot(i,j)) {
                 this.firstMove = false;
                 return true;
             }
@@ -184,7 +198,7 @@ class Pawn extends Peice {
     }
 }
 
-class Knight extends Peice {
+class Knight extends Piece {
 
     constructor(x, y, black) {
         super(x,y, black);
@@ -202,10 +216,10 @@ class Knight extends Peice {
                 }
                 let l = 3 - Math.abs(k);
 
-                if (this.index.i - k === i && this.index.j + l === j) {
+                if ((this.index.i - k === i && this.index.j + l === j) && this.emptySpot(i-k,j+l)) {
                     return true;
                 }
-                if (this.index.i - k === i && this.index.j - l === j) {
+                if ((this.index.i - k === i && this.index.j - l === j) && this.emptySpot(i-k,j-l)) {
                     return true;
                 }
             }

@@ -1,5 +1,4 @@
 
-
 class Board {
 
     constructor() {
@@ -14,7 +13,7 @@ class Board {
         for (let i = 0; i < this.SIZE; i++) {
             this.grid[i] = new Array(this.SIZE);
             for (let j = 0; j < this.SIZE; j++) {
-                this.grid[i][j] = 0;
+                this.grid[i][j] = null;
             }
         }
     }
@@ -23,7 +22,7 @@ class Board {
         noStroke();
         for (let i = 0; i<this.SIZE; i++) {
             for (let j = 0; j<this.SIZE; j++) {
-                fill((i+j)%2===1 ? color(17,18,12) : color(222,206,173)); 
+                fill((i+j)%2===1 ? color(209, 139, 71) : color(255, 206, 158));//color(17,18,12) : color(222,206,173)); 
                 rect(i*this.rows,j*this.col,this.rows,this.col);
             }
         }
@@ -37,7 +36,8 @@ class Board {
         this.grid[i][j] = 1;
     }
 
-    handleClick() {
-
+    withinBounds(i, j) {
+        return i < this.SIZE && i >= 0 && j < this.SIZE && j >= 0;
     }
+    
 }
