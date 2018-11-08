@@ -253,9 +253,16 @@ class Pawn extends Piece {
             let i = Math.floor(mouseX / this.SIZE);
             let j = Math.floor(mouseY / this.SIZE);
             let val = this.black ? 1 : -1;
-            if (((j-this.index.j === val || (j-this.index.j === 2*val && this.firstMove)) && i===this.index.i) && this.emptySpot(i,j)) {
+            if (((j-this.index.j === val || (j-this.index.j === 2*val && this.firstMove)) && i===this.index.i) && (board.withinBounds(i, j) && board.grid[i][j] === null)) {
                 this.firstMove = false;
                 return true;
+            }
+
+            if (j-this.index.j === val && Math.abs(i-this.index.i) === 1) {
+                if (this.checkHit(i, j)) {
+                    return true;
+                }
+
             }
         }
 
