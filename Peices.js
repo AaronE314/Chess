@@ -66,7 +66,7 @@ class Piece {
             if (board.grid[i][j] === null) {
                 return true;
             }
-            checkHit(i,j);
+            return this.checkHit(i,j);
         }
 
         return false;
@@ -74,17 +74,80 @@ class Piece {
 
     checkHit(i ,j) {
         if (board.grid[i][j] !== null && board.grid[i][j].black !== this.black) {
-            attack(i,j);
+            board.grid[i][j] == null;
             return true;
         }
         return false;
     }
 
-    attack(i, j) {
-        if (board.grid[i][j] !== null) {
-            
+    piece(i, j) {
+        if (!board.withinBounds(i, j) || board.grid[i][j] !== null) {
+            return true;
         }
+
+        return false;
     }
+
+    diagonalMove(i, j) {
+
+        let ul = true, ur = true, dr = true, dl = true;
+        for (let k = 1; k < board.SIZE; k++) {
+            if (ul && (this.index.i - k === i && this.index.j - k === j) && this.emptySpot(i,j)) {
+                return true;
+            }
+            if (this.piece(this.index.i-k, this.index.j-k)) {
+                ul = false;
+            }
+            if (dr && (this.index.i - k === i && this.index.j + k === j) && this.emptySpot(i,j))  {
+                return true;
+            }
+            if (this.piece(this.index.i-k, this.index.j+k)) {
+                dr = false;
+            }
+            if (ur && (this.index.i + k === i && this.index.j - k === j)  && this.emptySpot(i,j)) {
+                return true;
+            }
+            if (this.piece(this.index.i+k, this.index.j-k)) {
+                ur = false;
+            }
+            if (dl && (this.index.i + k === i && this.index.j + k === j) && this.emptySpot(i,j)) {
+                return true;
+            }
+            if (this.piece(this.index.i+k, this.index.j+k)) {
+                dl = false;
+            }
+        }
+    
+        return false;
+    }
+    
+    horizontalVerticalMove(i, j) {
+    
+        if (i === this.index.i || j === this.index.j) {
+            let s = (i < this.index.i) ? -1 : 1;
+            
+            for (let k = s; k<board.SIZE; k+=s) {
+                if ((i === this.index.i+k && j === this.index.j) && this.emptySpot(i,j)) {
+                    return true;
+                } 
+                if (this.piece(this.index.i+k,this.index.j)) {
+                    break;
+                }
+            }
+            s = (j < this.index.j) ? -1 : 1;
+            for (let k = s; k<board.SIZE; k+=s) {
+                if ((i === this.index.i && j === this.index.j+k) && this.emptySpot(i,j)) {
+                    return true;
+                }
+                if (this.piece(this.index.i,this.index.j+k)) {
+                    break;
+                }   
+            }
+        }
+    
+        return false
+    }
+
 }
 
 class King extends Piece {
@@ -119,23 +182,12 @@ class Queen extends Piece {
             let i = Math.floor(mouseX / this.SIZE);
             let j = Math.floor(mouseY / this.SIZE);
 
-            if ((i === this.index.i || j === this.index.j) && this.emptySpot(i,j)) {
+            if (this.horizontalVerticalMove(i, j)) {
                 return true;
             }
 
-            for (let k = 0; k < board.SIZE; k++) {
-                if ((this.index.i - k === i && this.index.j - k === j) && this.emptySpot(i,j)) {
-                    return true;
-                }
-                if ((this.index.i - k === i && this.index.j + k === j) && this.emptySpot(i,j))  {
-                    return true;
-                }
-                if ((this.index.i + k === i && this.index.j - k === j)  && this.emptySpot(i,j)) {
-                    return true;
-                }
-                if ((this.index.i + k === i && this.index.j + k === j) && this.emptySpot(i,j)) {
-                    return true;
-                }
+            if (this.diagonalMove(i, j)) {
+                return true;
             }
             
         }
@@ -156,9 +208,10 @@ class Rook extends Piece {
             let i = Math.floor(mouseX / this.SIZE);
             let j = Math.floor(mouseY / this.SIZE);
 
-            if ((i === this.index.i || j === this.index.j) && this.emptySpot(i,j)) {
+            if (this.horizontalVerticalMove(i, j)) {
                 return true;
             }
+
         }
 
         return false;
@@ -177,20 +230,10 @@ class Bishop extends Piece {
             let i = Math.floor(mouseX / this.SIZE);
             let j = Math.floor(mouseY / this.SIZE);
 
-            for (let k = 0; k < board.SIZE; k++) {
-                 if ((this.index.i - k === i && this.index.j - k === j) && this.emptySpot(i,j)) {
-                    return true;
-                }
-                if ((this.index.i - k === i && this.index.j + k === j) && this.emptySpot(i,j))  {
-                    return true;
-                }
-                if ((this.index.i + k === i && this.index.j - k === j)  && this.emptySpot(i,j)) {
-                    return true;
-                }
-                if ((this.index.i + k === i && this.index.j + k === j) && this.emptySpot(i,j)) {
-                    return true;
-                }
+            if (this.diagonalMove(i, j)) {
+                return true;
             }
+
         }
 
         return false;
@@ -210,7 +253,7 @@ class Pawn extends Piece {
             let i = Math.floor(mouseX / this.SIZE);
             let j = Math.floor(mouseY / this.SIZE);
             let val = this.black ? 1 : -1;
-            if (((j-this.index.j === val || (j-this.index.j === 2*val)) && i===this.index.i) && this.emptySpot(i,j)) {
+            if (((j-this.index.j === val || (j-this.index.j === 2*val && this.firstMove)) && i===this.index.i) && this.emptySpot(i,j)) {
                 this.firstMove = false;
                 return true;
             }
@@ -238,10 +281,10 @@ class Knight extends Piece {
                 }
                 let l = 3 - Math.abs(k);
 
-                if ((this.index.i - k === i && this.index.j + l === j) && this.emptySpot(i-k,j+l)) {
+                if ((this.index.i + k === i && this.index.j + l === j) && this.emptySpot(this.index.i+k,this.index.j+l)) {
                     return true;
                 }
-                if ((this.index.i - k === i && this.index.j - l === j) && this.emptySpot(i-k,j-l)) {
+                if ((this.index.i + k === i && this.index.j - l === j) && this.emptySpot(this.index.i+k,this.index.j-l)) {
                     return true;
                 }
             }
