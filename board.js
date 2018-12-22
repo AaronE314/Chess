@@ -22,7 +22,7 @@ class Board {
         noStroke();
         for (let i = 0; i<this.SIZE; i++) {
             for (let j = 0; j<this.SIZE; j++) {
-                fill((i+j)%2===1 ? color(209, 139, 71) : color(255, 206, 158));//color(17,18,12) : color(222,206,173)); 
+                fill((i+j)%2===1 ? color(209, 139, 71) : color(255, 206, 158));
                 rect(i*this.rows,j*this.col,this.rows,this.col);
             }
         }
